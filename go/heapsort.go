@@ -6,7 +6,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"time"
 )
@@ -45,19 +44,15 @@ func (a Node) String() string {
 }
 
 func main() {
-	//fedInput := []MyInt{28, 19, 59, 94, 38, 36, 1, 30, 63, 84, 8, 60, 17, 34, 87, 2, 76, 48, 72, 49}
 	numbers := make([]Comparer, 20)
 
 	// fill array with random numbers
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < len(numbers); i++ {
 		numbers[i] = MyInt(rand.Intn(100))
-		//numbers[i] = fedInput[i]
 	}
 
 	fmt.Println("Original:", numbers)
-	buildMaxHeap(numbers)
-	fmt.Println("Heap:", numbers)
 	heapsort(numbers)
 	fmt.Println("Sorted:", numbers)
 	fmt.Println()
@@ -71,47 +66,71 @@ func main() {
 	}
 
 	fmt.Println("Original:", nodes)
-	buildMaxHeap(nodes)
-	fmt.Println("Heap:", nodes)
 	heapsort(nodes)
 	fmt.Println("Sorted:", nodes)
 }
 
 func heapsort(array []Comparer) {
-	buildMaxHeap(array)
-	heapsize := len(array)
-	for i := len(array) - 1; i > 0; i-- {
-		array[0], array[i] = array[i], array[0]
-		heapsize--
-		maxHeapify(array, heapsize, 0)
+	// Step 1: Heapify
+	// rearrange the array into heap
+	// by going from the right to left, bottom to top
+	// and moving each node down if it violates the
+	// heap order property (that is, if it is larger
+	// than its parent, since this is a *max* heap)
+	for i := len(array)/2 - 1; i >= 0; i-- {
+		siftDown(i, array, len(array))
 	}
+
+	// Step 2: Sort
+	// from the last element to the first
+	for i := len(array) - 1; i >= 0; i-- {
+		// pull out the largest element from the heap root
+		// this is the same as a deleteMax() call
+		v := array[0]
+		// set the new root to the last element in the heap
+		array[0] = array[i]
+		// move that new root down into its proper place
+		siftDown(0, array, i)
+		// the heap will shrink as i decreases
+		// so put the largest element that we pulled out of
+		// the heap right after the end of our shrinking heap
+		// at index i
+		array[i] = v
+	}
+	// the heap size is now zero
+	// and all elements are sorted in the array
 }
 
-func buildMaxHeap(array []Comparer) {
-	for i := int(math.Floor(float64(len(array)) / 2)); i >= 0; i-- {
-		maxHeapify(array, len(array), i)
-	}
-}
+// siftDown only actually runs on half of the array,
+// so it actually runs in O(n) instead of O(nlogn)
+func siftDown(i int, array []Comparer, n int) {
+	// parent(i) = (i-1)/2
+	// leftchild(i) = 2i+1
+	// rightchild(i) = 2i+2.
 
-func maxHeapify(array []Comparer, heapsize int, parent int) {
-	for {
-		leftChild := (2 * parent) + 1
-		rightChild := (2 * parent) + 2
-
-		largest := parent
-		if leftChild < heapsize && array[leftChild].Compare(array[largest]) > 0 {
-			largest = leftChild
+	// we want to move temp down the heap
+	// until it fulfills the heap-order property
+	temp := array[i]
+	// child starts as the left child of i
+	child := 2*i + 1
+	for child < n {
+		// if right child is within heap (bounds checking)
+		// and the right child is larger than the left
+		if child+1 < n && array[child].Compare(array[child+1]) < 0 {
+			// right child exists and is bigger
+			// so set child to the right child
+			child++
 		}
-
-		if rightChild < heapsize && array[rightChild].Compare(array[largest]) > 0 {
-			largest = rightChild
-		}
-
-		if largest == parent {
+		// Is the largest child larger than the node we're trying to move down?
+		if array[child].Compare(temp) > 0 {
+			array[i] = array[child] // overwrite that node with the child
+			i = child               // move the current node to the child
+			child = 2*i + 1         // and look at its left child
+		} else {
+			// if temp isn't bigger than the child
+			// then it's in the right place and we can stop
 			break
 		}
-		// swap
-		array[parent], array[largest] = array[largest], array[parent]
-		parent = largest
 	}
+	array[i] = temp
 }
