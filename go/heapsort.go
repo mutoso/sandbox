@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-type Comparer interface {
+type Comparable interface {
 	Compare(b interface{}) int
 }
 
@@ -44,7 +44,7 @@ func (a Node) String() string {
 }
 
 func main() {
-	numbers := make([]Comparer, 20)
+	numbers := make([]Comparable, 20)
 
 	// fill array with random numbers
 	rand.Seed(time.Now().UnixNano())
@@ -60,7 +60,7 @@ func main() {
 	// Names
 	names := []string{"Brandee", "Nelida", "Jaqueline", "Candyce", "Wayne", "Anissa", "Randal", "Milton", "Manda", "Pasquale", "Alpha", "Destiny", "Romaine", "Waneta", "Claudio", "Arnulfo", "Yukiko", "Barbra", "Judie", "Larry"}
 
-	nodes := make([]Comparer, len(names))
+	nodes := make([]Comparable, len(names))
 	for i, d := range names {
 		nodes[i] = Node{name: d}
 	}
@@ -70,7 +70,7 @@ func main() {
 	fmt.Println("Sorted:", nodes)
 }
 
-func heapsort(array []Comparer) {
+func heapsort(array []Comparable) {
 	// Step 1: Heapify
 	// rearrange the array into heap
 	// by going from the right to left, bottom to top
@@ -103,7 +103,7 @@ func heapsort(array []Comparer) {
 
 // siftDown only actually runs on half of the array,
 // so it actually runs in O(n) instead of O(nlogn)
-func siftDown(i int, array []Comparer, n int) {
+func siftDown(i int, array []Comparable, n int) {
 	// parent(i) = (i-1)/2
 	// leftchild(i) = 2i+1
 	// rightchild(i) = 2i+2.
